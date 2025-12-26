@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Tap Rhythm Game - Build 0.5 Test</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0b0f1a;
+  overflow: hidden;
+  touch-action: none;
+  font-family: Arial, sans-serif;
+}
+
+#game {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.circle {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 4px solid #ff66cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  animation: fade 1.2s linear forwards;
+}
+
+@keyframes fade {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(1.5); opacity: 0; }
+}
+
+#hud {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  color: white;
+  font-size: 16px;
+  z-index: 10;
+}
+</style>
+</head>
+
+<body>
+<div id="hud">Score: <span id="score">0</span></div>
+<div id="game"></div>
+
+<script>
+const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
+let score = 0;
+
+function spawnCircle() {
+  const circle = document.createElement("div");
+  circle.className = "circle";
+
+  const size = 70;
+  const x = Math.random() * (window.innerWidth - size);
+  const y = Math.random() * (window.innerHeight - size);
+
+  circle.style.left = x + "px";
+  circle.style.top = y + "px";
+
+  circle.addEventListener("pointerdown", () => {
+    score += 100;
+    scoreEl.textContent = score;
+    circle.remove();
+  });
+
+  game.appendChild(circle);
+
+  setTimeout(() => {
+    if (circle.parentNode) circle.remove();
+  }, 1200);
+}
+
+setInterval(spawnCircle, 700);
+
+window.addEventListener("resize", () => {
+  // Auto-fit handled by vw/vh
+});
+</script>
+</body>
+</html>
