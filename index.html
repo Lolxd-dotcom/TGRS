@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Tap Rhythm Game - Build 0.5 Test</title>
+<title>Tap Rhythm Game - Build 0.5.2 Test</title>
 
 <style>
 html, body {
@@ -32,13 +32,14 @@ html, body {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
-  animation: fade 1.2s linear forwards;
+  font-size: 22px;
+  font-weight: bold;
+  animation: fade 5s linear forwards;
 }
 
 @keyframes fade {
   from { transform: scale(1); opacity: 1; }
-  to   { transform: scale(1.5); opacity: 0; }
+  to   { transform: scale(1.6); opacity: 0; }
 }
 
 #hud {
@@ -49,21 +50,45 @@ html, body {
   font-size: 16px;
   z-index: 10;
 }
+
+#build {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+}
 </style>
 </head>
 
 <body>
-<div id="hud">Score: <span id="score">0</span></div>
+
+<div id="hud">
+  Score: <span id="score">0</span>
+</div>
+
+<div id="build">Build 0.5.2 – Test</div>
 <div id="game"></div>
 
 <script>
 const game = document.getElementById("game");
 const scoreEl = document.getElementById("score");
+
 let score = 0;
+
+function updateScore(value) {
+  score += value;
+  scoreEl.textContent = score;
+}
 
 function spawnCircle() {
   const circle = document.createElement("div");
   circle.className = "circle";
+
+  let hit = false;
+  let timeLeft = 5;
+
+  circle.textContent = timeLeft;
 
   const size = 70;
   const x = Math.random() * (window.innerWidth - size);
@@ -72,24 +97,38 @@ function spawnCircle() {
   circle.style.left = x + "px";
   circle.style.top = y + "px";
 
+  // Countdown timer text
+  const countdown = setInterval(() => {
+    timeLeft--;
+    if (timeLeft >= 0) {
+      circle.textContent = timeLeft;
+    }
+  }, 1000);
+
+  // Hit detection
   circle.addEventListener("pointerdown", () => {
-    score += 100;
-    scoreEl.textContent = score;
+    if (hit) return;
+    hit = true;
+    clearInterval(countdown);
+    updateScore(100);
     circle.remove();
   });
 
   game.appendChild(circle);
 
+  // Miss after 5 seconds
   setTimeout(() => {
-    if (circle.parentNode) circle.remove();
-  }, 1200);
+    if (!hit && circle.parentNode) {
+      clearInterval(countdown);
+      updateScore(-100);
+      circle.remove();
+    }
+  }, 5000);
 }
 
+// Spawn rate
 setInterval(spawnCircle, 700);
-
-window.addEventListener("resize", () => {
-  // Auto-fit handled by vw/vh
-});
 </script>
+
 </body>
 </html>
