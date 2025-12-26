@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Tap Rhythm Game - Build 0.5.2 Test</title>
+<title>Tap Rhythm Game - Build 0.6.0 Test</title>
 
 <style>
 html, body {
@@ -51,6 +51,12 @@ html, body {
   z-index: 10;
 }
 
+#combo {
+  margin-top: 5px;
+  color: #ff66cc;
+  font-weight: bold;
+}
+
 #build {
   position: fixed;
   bottom: 10px;
@@ -64,21 +70,41 @@ html, body {
 <body>
 
 <div id="hud">
-  Score: <span id="score">0</span>
+  Score: <span id="score">0</span><br>
+  Combo: <span id="combo">0</span>
 </div>
 
-<div id="build">Build 0.5.2 – Test</div>
+<div id="build">Build 0.6.0 – Test</div>
 <div id="game"></div>
+
+<audio id="music" src="music.wav" loop></audio>
 
 <script>
 const game = document.getElementById("game");
 const scoreEl = document.getElementById("score");
+const comboEl = document.getElementById("combo");
+const music = document.getElementById("music");
 
 let score = 0;
+let combo = 0;
+let musicStarted = false;
 
 function updateScore(value) {
   score += value;
   scoreEl.textContent = score;
+}
+
+function updateCombo(value) {
+  combo = value;
+  comboEl.textContent = combo;
+}
+
+function startMusic() {
+  if (!musicStarted) {
+    music.volume = 0.6;
+    music.play();
+    musicStarted = true;
+  }
 }
 
 function spawnCircle() {
@@ -87,17 +113,12 @@ function spawnCircle() {
 
   let hit = false;
   let timeLeft = 5;
-
   circle.textContent = timeLeft;
 
   const size = 70;
-  const x = Math.random() * (window.innerWidth - size);
-  const y = Math.random() * (window.innerHeight - size);
+  circle.style.left = Math.random() * (window.innerWidth - size) + "px";
+  circle.style.top = Math.random() * (window.innerHeight - size) + "px";
 
-  circle.style.left = x + "px";
-  circle.style.top = y + "px";
-
-  // Countdown timer text
   const countdown = setInterval(() => {
     timeLeft--;
     if (timeLeft >= 0) {
@@ -105,28 +126,31 @@ function spawnCircle() {
     }
   }, 1000);
 
-  // Hit detection
   circle.addEventListener("pointerdown", () => {
+    startMusic();
+
     if (hit) return;
     hit = true;
+
     clearInterval(countdown);
     updateScore(100);
+    updateCombo(combo + 1);
+
     circle.remove();
   });
 
   game.appendChild(circle);
 
-  // Miss after 5 seconds
   setTimeout(() => {
     if (!hit && circle.parentNode) {
       clearInterval(countdown);
       updateScore(-100);
+      updateCombo(0);
       circle.remove();
     }
   }, 5000);
 }
 
-// Spawn rate
 setInterval(spawnCircle, 700);
 </script>
 
